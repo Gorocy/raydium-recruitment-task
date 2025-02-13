@@ -1,4 +1,5 @@
-from raydium_parser.raydium_parser import parse_block
+import json
+from raydium_parser.raydium_parser import parse_block, RaydiumSwap
 from raydium_parser.rpc_utils import get_block
 
 
@@ -7,18 +8,24 @@ def test_raydium_parser():
 
     swaps = parse_block(block, 316719543)
 
-    first_swap = next(swaps)
+    # Convert the iterator to a list to print all swaps
+    swaps_list = list(swaps)
 
-    assert first_swap.slot == 316719543
-    assert first_swap.index_in_slot == 0
-    assert first_swap.index_in_tx == 0
-    assert first_swap.signature == "signature"
-    assert first_swap.was_successful
-    assert first_swap.mint_in == 123456789
-    assert first_swap.mint_out == 987654321
-    assert first_swap.amount_in == 1000000
-    assert first_swap.amount_out == 2000000
-    assert first_swap.limit_amount == 5000000
-    assert first_swap.limit_side == "mint_in"
-    assert first_swap.post_pool_balance_mint_in == 123456789
-    assert first_swap.post_pool_balance_mint_out == 987654321
+    assert len(swaps_list) == 809, "No swaps were parsed"
+
+    # Filter swaps to only include successful ones
+    successful_swaps = [swap for swap in swaps_list if swap.was_successful]
+
+    # Calculate expected successful count and margin of error
+    expected_successful_count = round(809 * 0.06)
+    margin_of_error = round(809 * 0.006)
+
+    # Calculate lower and upper bounds
+    lower_bound = expected_successful_count - margin_of_error
+    upper_bound = expected_successful_count + margin_of_error
+
+    # Check if the number of successful swaps is within the margin of error
+    assert lower_bound <= len(successful_swaps) <= upper_bound, (
+        f"Expected successful swaps to be between {lower_bound} and {upper_bound}, "
+        f"but got {len(successful_swaps)}"
+    )

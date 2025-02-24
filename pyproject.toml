@@ -25,6 +25,8 @@ pytest-asyncio = "^0.25.3"
 pytest-watch = "^4.2.0"
 loguru = "^0.7.3"
 solana = "^0.36.3"
+solders = "^0.26.0"
+logging = "^0.4.9.6"
 
 [tool.poetry.group.dev.dependencies]
 coverage = "^7.6.10"
